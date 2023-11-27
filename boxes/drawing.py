@@ -520,6 +520,7 @@ Creation date: {date}
         self._add_metadata(svg)
         
         for i, part in enumerate(self.parts):
+            print(f"Part {i} has {len(part.pathes)} pathes, extents: {part.extents()}")
             if not part.pathes:
                 continue
             g = ET.SubElement(svg, "g", id=f"p-{i}",

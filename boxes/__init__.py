@@ -735,11 +735,43 @@ class Boxes:
         else:
             return param
 
+    def pack(self):
+        import math
+        from .drawing import Part
+        from rectpack import newPacker
+
+        print("packing")
+
+        parts: list[Part] = self.surface.parts
+        packer = newPacker()
+
+        # Add the parts to the packing queue based on extents
+        for p in parts:
+            e = p.extents()
+            if len(p.pathes) == 0:
+                continue
+            # rectpack lib needs sizes to be integers,
+            # so round-up any fractional-sized parts
+            packer.add_rect(math.ceil(e.xmax-e.xmin), math.ceil(e.ymax-e.ymin), p)
+
+        # Add the bins where the rectangles will be placed
+        packer.add_bin(600, 500)
+
+        # Start packing
+        packer.pack()
+
+        # Move each of the Parts to match the location
+        # of their respective Packed Rectangle
+        for rect in packer[0]:
+            print(rect.rid)
+            #rect.rid.move_to(rect.x, rect.y)
+
     def close(self):
         """Finish rendering
 
         Flush canvas to disk and convert output to requested format if needed.
         Call after .render()"""
+        self.pack()
         if self.ctx is None:
             return
 
